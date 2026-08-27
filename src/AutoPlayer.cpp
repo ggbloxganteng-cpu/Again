@@ -1,6 +1,6 @@
 #include "AutoPlayer.hpp"
 #include <algorithm>
-#include <limits>
+#include <cmath>
 
 void AutoPlayer::setEnabled(bool value) {
     m_enabled = value;
@@ -19,6 +19,25 @@ void AutoPlayer::update(RuntimeState const& state, int horizon) {
         return;
     }
 
+    // Phase-1 Android fallback: the old predictor always selected None because
+    // it had no collision information. That meant the bot never generated an
+    // input. For cube/robot/spider, perform a real jump pulse when grounded.
+    // Other modes continue to use the predictor until their mode-specific
+    // controller is implemented.
+    if (!state.ship && !state.wave && !state.ball) {
+        if (state.onGround) {
+            m_action = Action::Press;
+            m_confidence = 1.f;
+            return;
+        }
+
+        // Release after the initial jump pulse. This gives the input layer a
+        // deterministic press/release pair instead of an endless hold.
+        m_action = Action::Release;
+        m_confidence = 0.65f;
+        return;
+    }
+
     auto none = m_predictor.evaluate(state, Action::None, horizon);
     auto press = m_predictor.evaluate(state, Action::Press, horizon);
     auto release = m_predictor.evaluate(state, Action::Release, horizon);
@@ -27,7 +46,6 @@ void AutoPlayer::update(RuntimeState const& state, int horizon) {
     if (!press.unsafe && press.score < best->score) best = &press;
     if (!release.unsafe && release.score < best->score) best = &release;
 
-    // Avoid acting on a weak prediction.
     float second = std::numeric_limits<float>::max();
     for (auto* c : {&none, &press, &release}) {
         if (c != best) second = std::min(second, c->score);
@@ -35,6 +53,5 @@ void AutoPlayer::update(RuntimeState const& state, int horizon) {
 
     float gap = second - best->score;
     m_confidence = gap <= 0.f ? 0.f : std::min(1.f, gap / (std::abs(second) + 1.f));
-
-    m_action = m_confidence < 0.10f ? Action::None : best->action;
+    m_action = m_confidence < 0.05f ? Action::None : best->action;
 }

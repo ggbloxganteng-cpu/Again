@@ -56,7 +56,10 @@ class $modify(TrajectoryBotPlayLayer, PlayLayer) {
 
         auto* player = this->m_player1;
         if (!player || player->m_isDead) {
+            if (player && m_fields->m_lastAction == Action::Press)
+                player->releaseButton(static_cast<PlayerButton>(1));
             ov->clear();
+            m_fields->m_lastAction = Action::None;
             return;
         }
 
@@ -96,11 +99,18 @@ class $modify(TrajectoryBotPlayLayer, PlayLayer) {
 
             Action newAction = bot.action();
             if (newAction != m_fields->m_lastAction) {
-                bool press = (newAction == Action::Press);
-                this->handleButton(press, 1, true);
+                // Do not route bot input through PlayLayer::handleButton on Android.
+                // PlayerObject exposes the platform-independent input API in the
+                // 2.2081 bindings: pushButton/releaseButton. Button 1 is Jump.
+                if (newAction == Action::Press) {
+                    player->pushButton(static_cast<PlayerButton>(1));
+                } else if (newAction == Action::Release) {
+                    player->releaseButton(static_cast<PlayerButton>(1));
+                }
+
                 m_fields->m_lastAction = newAction;
                 log::debug("[TrajectoryBot] {} | confidence={:.2f}",
-                    press ? "PRESS" : "RELEASE", bot.confidence());
+                    newAction == Action::Press ? "PRESS" : "RELEASE", bot.confidence());
             }
         }
     }
@@ -114,6 +124,8 @@ class $modify(TrajectoryBotPlayLayer, PlayLayer) {
         auto ov = m_fields->m_overlay;
         if (ov) ov->clear();
 
+        if (this->m_player1 && m_fields->m_lastAction == Action::Press)
+            this->m_player1->releaseButton(static_cast<PlayerButton>(1));
         m_fields->m_lastAction = Action::None;
         m_fields->m_bot.setEnabled(
             Mod::get()->getSettingValue<bool>("bot-enabled")
@@ -129,6 +141,8 @@ class $modify(TrajectoryBotPlayLayer, PlayLayer) {
         auto ov = m_fields->m_overlay;
         if (ov) ov->clear();
 
+        if (this->m_player1)
+            this->m_player1->releaseButton(static_cast<PlayerButton>(1));
         m_fields->m_lastAction = Action::None;
         m_fields->m_bot.setEnabled(false);
     }
