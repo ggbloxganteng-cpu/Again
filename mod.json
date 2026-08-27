@@ -1,43 +1,44 @@
 {
-  "geode": "5.8.2",
-  "gd": {
-    "android": "2.2081"
-  },
-  "id": "amba.trajectorybot",
-  "name": "Trajectory Bot",
-  "version": "v0.2.0",
-  "developer": "Amba",
-  "description": "Experimental offline/practice trajectory visualizer and autoplay research mod.",
-  "repository": "https://github.com/yourname/trajectorybot",
-  "settings": {
-    "bot-enabled": {
-      "name": "Bot enabled",
-      "description": "Enable the experimental autoplay controller.",
-      "type": "bool",
-      "default": false
+    "geode": "5.8.2",
+    "gd": {
+        "android": "2.2081"
     },
-    "trajectory-enabled": {
-      "name": "Show trajectory",
-      "description": "Draw the predicted player path.",
-      "type": "bool",
-      "default": true
+    "id": "amba.trajectorybot",
+    "name": "TrajectoryBot",
+    "version": "v0.2.1",
+    "developer": "Amba",
+    "description": "Trajectory prediction and experimental auto-play tools.",
+    "dependencies": {
+        "geode.node-ids": ">=v1.23.3"
     },
-    "prediction-frames": {
-      "name": "Prediction frames",
-      "description": "How far ahead the predictor evaluates.",
-      "type": "int",
-      "default": 90,
-      "min": 15,
-      "max": 240
-    },
-    "decision-horizon": {
-      "name": "Decision horizon",
-      "description": "Frames evaluated for each candidate input.",
-      "type": "int",
-      "default": 24,
-      "min": 4,
-      "max": 90
+    "settings": {
+        "trajectory-enabled": {
+            "name": "Trajectory Overlay",
+            "description": "Tampilkan prediksi trajectory saat bermain.",
+            "type": "bool",
+            "default": true
+        },
+        "bot-enabled": {
+            "name": "AutoPlay",
+            "description": "Aktifkan bot autoplay (practice mode aja!)",
+            "type": "bool",
+            "default": false
+        },
+        "prediction-frames": {
+            "name": "Prediction Length (frames)",
+            "description": "Berapa frame ke depan trajectory diprediksi.",
+            "type": "int",
+            "default": 60,
+            "min": 10,
+            "max": 240
+        },
+        "decision-horizon": {
+            "name": "Bot Decision Horizon (frames)",
+            "description": "Seberapa jauh bot melihat ke depan saat membuat keputusan.",
+            "type": "int",
+            "default": 30,
+            "min": 5,
+            "max": 120
+        }
     }
-  },
-  "dependencies": []
 }
