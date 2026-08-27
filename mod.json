@@ -5,9 +5,9 @@
     },
     "id": "amba.trajectorybot",
     "name": "TrajectoryBot",
-    "version": "v0.2.1",
+    "version": "v0.3.0",
     "developer": "Amba",
-    "description": "Trajectory prediction and experimental auto-play tools.",
+    "description": "Android64 trajectory overlay and experimental autoplay controller for GD 2.2081.",
     "dependencies": {
         "geode.node-ids": ">=v1.23.3"
     },
